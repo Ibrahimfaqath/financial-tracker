@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>logging Out...</title>
+</head>
+
+<body>
+    <h1>Anda sedang keluar...</h1>
+    <script>
+        (async () => {
+            try {
+                // Panggil API logout untuk menghapus cookie
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (error) {
+                console.log('Logout failed:', error);
+            } finally {
+                // Selalu alihkan ke halaman login setelah mencoba logout
+                window.location.href = '/login/';
+            }
+        })();
+    </script>
+</body>
+
+</html>

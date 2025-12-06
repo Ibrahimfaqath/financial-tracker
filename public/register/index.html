@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regristrasi Akun</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="message"></h1>
+        <form action="" id="registrationForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <br>
+            <input type="password" id="password" placeholder="Password" required>
+            <br>
+            <button type="submit">Daftar</button>
+        </form>
+        <p>Sudah punya akun? <a href="/login/">Login di sini</a></p>
+    </div>
+
+    <script>
+        console.log("Index.html in register is running....");
+        
+        const form = document.getElementById('registrationForm');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            messageDiv.textContent = '';
+            messageDiv.style.color = 'red';
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                })
+
+                const result = await response.json();
+
+                if (response.status === 201 && result.success) {
+                    messageDiv.style.color = 'green';
+                    messageDiv.innerHTML = 'Registrasi **berhasil!** Silakan <a href="/login/">login</a>.';
+                    form.reset();
+                } else {
+                    messageDiv.textContent = result.message || 'Registrasi gagal';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Terjadi kesalahan jaringan. silakan coba lagi.';
+            }
+        });
+    </script>
+</body>
+
+</html>

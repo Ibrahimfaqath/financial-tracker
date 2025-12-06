@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Login Aplikasi keuangan</h1>
+        <div id="message"></div>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <br>
+            <input type="password" id="password" placeholder="Password" required>
+            <br>
+            <button type="submit">Login</button>
+        </form>
+        <p>Belum punya akun? <a href="/register/">Daftar di sini</a></p>
+    </div>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const messageDiv = document.getElementById("message");
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            messageDiv.textContent = '';
+            messageDiv.style.color = 'red';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Login berhasil, cookie sudah terpasang
+                    window.location.href = '/dashboard';
+                } else {
+                    messageDiv.textContent = result.message || 'Login gagal!';
+                }
+            } catch {
+                messageDiv.textContent = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
+            }
+        });
+    </script>
+</body>
+</html>

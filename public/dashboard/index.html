@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard keuangan</title>
+</head>
+
+<body>
+    <header>
+        <h1>Halo, <span id="username">Pengguna</span>!</h1>
+        <a href="/logout/">Logout</a>
+        <hr>
+    </header>
+
+    <main>
+        <h2>Ringkasan Bulan Ini (<span id="currentMonthYear"></span>)</h2>
+        <div id="summary">
+            <p>Pemasukan (Income): <strong id="income">...</strong></p>
+            <p>Pengeluaran (Outcome): <strong id="outcome">...</strong></p>
+            <h3>Sisa Saldo (Balance): <strong id="balance">...</strong></h3>
+        </div>
+
+        <hr>
+
+        <h2>Input Transaksi Baru</h2>
+        <div id="addMessage"></div>
+        <form id="addTransactionForm">
+            <label for="nominal">Nominal:</label>
+            <input type="number" id="nominal" placeholder="Contoh: 500000" required>
+            <br>
+            <label for="date">Tanggal:</label>
+            <input type="date" id="date" required>
+            <br>
+            <label for="status">Status:</label>
+            <select id="status" required>
+                <option value="income">Pemasukan</option>
+                <option value="outcome">Pengeluaran</option>
+            </select>
+            <br>
+            <label for="description">Keterangan (Opsional):</label>
+            <input type="text" id="description" placeholder="Contoh: Gaji bulan lalu">
+            <br>
+            <button type="submit">Tambah Transaksi</button>
+        </form>
+
+        <hr>
+
+        <h2>Riwayat Transaksi</h2>
+        <ul id="transactionList">
+            <li>Memuat data...</li>
+        </ul>
+    </main>
+
+    <script>
+        const usernameSpan = document.getElementById('username');
+        const incomeEl = document.getElementById('income');
+        const outcomeEl = document.getElementById('outcome');
+        const balanceEl = document.getElementById('balance');
+        const currentMonthYearEl = document.getElementById('currentMonthYear');
+        const addTransactionForm = document.getElementById('addTransactionForm');
+        const transactionList = document.getElementById('transactionList');
+        const addMessageDiv = document.getElementById('addMessage');
+
+        const TODAY = new Date();
+        const CURRENT_YEAR = TODAY.getFullYear();
+        const CURRENT_MONTH = (TODAY.getMonth() + 1).toString().padStart(2, '0');
+
+        // Format nominal ke Rupiah
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 2
+            }).format(number);
+        };
+
+        // 1. Periksa status login & dapatkan data pengguna
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('/api/me');
+                if (!response.ok) {
+                    window.location.href = '/login/';
+                    return null;
+                }
+                const { success, data } = await response.json();
+                if (success) {
+                    usernameSpan.textContent = data.username;
+                    return data;
+                } else {
+                    window.location.href = '/login/';
+                    return null;
+                }
+            } catch (error) {
+                window.location.href = '/login/';
+                return null;
+            }
+        };
+
+        // 2 Fungsi untuk mengambil dan menampilkan transaksi & summmary
+        const fetchTransactions = async (year, month) => {
+            currentMonthYearEl.textContent = `${month}/${year}`;
+            transactionList.innerHTML = '<li>Memuat data...</li>';
+
+            try {
+                const response = await fetch(`/api/transactions?year=${year}&month=${month}`);
+                const { success, data, summary } = await response.json();
+
+                if (success) {
+                    // Update Summary
+                    incomeEl.textContent = formatRupiah(summary.totalIncome);
+                    outcomeEl.textContent = formatRupiah(summary.totalOutcome);
+                    balanceEl.textContent = formatRupiah(summary.balance);
+
+                    // Update List
+                    transactionList.innerHTML = '';
+                    if (data.length === 0) {
+                        transactionList.innerHTML = '<li>Belum ada transaksi di bulan ini.</li>';
+                    }
+                    data.forEach((t) => {
+                        const li = document.createElement('li');
+                        const nominalFormatted = formatRupiah(parseFloat(t.nominal));
+                        const color = t.status === 'income' ? 'green' : 'red';
+
+                        li.innerHTML = `**[${t.status.toUpperCase()}]** ${t.transactionDate}: <span style="color: ${color};">${nominalFormatted}</span> - ${t.description || '-'}`;
+                        transactionList.appendChild(li);
+                    });
+                } else {
+                    transactionList.innerHTML = '<li> Gagal memuat transaksi.</li>';
+                }
+            } catch (error) {
+                console.error('Gagal mengambil transaksi:', error);
+                transactionList.innerHTML = '<li>Error jaringan saat memuat data.</li>';
+            }
+        };
+
+        // 3. Event listener untuk menambah transaksi baru
+        addTransactionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nominal = document.getElementById('nominal').value;
+            const transactionDate = document.getElementById('date').value;
+            const status = document.getElementById('status').value;
+            const description = document.getElementById('description').value;
+
+            if (!nominal || !transactionDate || !status) return;
+
+            addMessageDiv.textContent = '';
+            addMessageDiv.style.color = 'red';
+
+            try {
+                const response = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nominal: parseFloat(nominal), transactionDate, status, description })
+                });
+                const { success, message } = await response.json();
+
+                if (response.status === 201 && success) {
+                    addMessageDiv.style.color = 'green';
+                    addMessageDiv.textContent = '✅ Transaksi berhasil ditambahkan!';
+                    addTransactionForm.reset();
+                    fetchTransactions(CURRENT_YEAR, CURRENT_MONTH) // Muat ulang daftar
+                } else {
+                    addMessageDiv.textContent = message || 'Gagal menambah transaksi.';
+                }
+            } catch (error) {
+                console.error('Gagal menambah transaksi: ', error);
+                addMessageDiv.textContent = 'Error jaringan saat menambah transaksi.';
+            }
+        });
+
+        // Panggil fungsi utama saat halaman dimuat
+        (async () => {
+            const user = await checkAuth();
+            if (user) {
+                fetchTransactions(CURRENT_YEAR, CURRENT_MONTH);
+            }
+        })();
+    </script>
+</body>
+
+</html>
