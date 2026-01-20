@@ -144,10 +144,6 @@ app.get('/api/transactions', authMiddleware, async (c) => {
   }
 });
 
-// // ,,, ROOT URL dan SERVE STATIC FILES (untuk UI) ,,,
-// app.get('/', (c) => {
-//   return c.html('<h1>Financial Traker API is Running!</h1>');
-// });
 
 app.use('/*', serveStatic({ root: './public' }));
 
