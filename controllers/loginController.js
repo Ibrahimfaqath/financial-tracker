@@ -1,9 +1,9 @@
 import { db } from '../db/index.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { eq, desc, sql } from 'drizzle-orm';
-import { users, transactions } from '../db/schema.js';
-import { setCookie, getCookie } from 'hono/cookie';
+import { eq } from 'drizzle-orm';
+import { users } from '../db/schema.js';
+import { setCookie, } from 'hono/cookie';
 
 const SECRET = process.env.JWT_SECRET;
 

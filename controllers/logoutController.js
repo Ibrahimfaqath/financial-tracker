@@ -1,4 +1,4 @@
-import { setCookie, getCookie } from 'hono/cookie';
+import { setCookie } from 'hono/cookie';
 
 const logout = (c) => {
   setCookie(c, 'token', '', { maxAge: -1 });
