@@ -8,6 +8,13 @@
       "when": 1764128619583,
       "tag": "0000_talented_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768961341088,
+      "tag": "0001_ancient_omega_red",
+      "breakpoints": true
     }
   ]
 }

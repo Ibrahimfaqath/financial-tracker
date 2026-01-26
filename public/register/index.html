@@ -4,25 +4,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Regristrasi Akun</title>
+    <title>Registrasi Akun - Financial App</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* Variabel CSS untuk Tema Emas & Silver */
+        :root {
+            --bg-color: #f8f8f8;
+            --bg-image: linear-gradient(125deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.8) 100%), url('https://www.transparenttextures.com/patterns/white-diamond.png');
+            --container-bg: rgba(255, 255, 255, 0.98);
+            --text-main: #2c3e50;
+            --text-muted: #888;
+            --accent-color: #B38728;
+            --accent-gradient: linear-gradient(90deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --btn-gradient: linear-gradient(45deg, #BF953F, #D4AF37, #B38728);
+            --input-bg: #fafafa;
+            --input-border: #e0e0e0;
+            --border-glow: rgba(212, 175, 55, 0.25);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f0f0f;
+            --bg-image: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(30, 30, 30, 0.9) 100%), url('https://www.transparenttextures.com/patterns/black-linen.png');
+            --container-bg: rgba(30, 30, 30, 0.9);
+            --text-main: #ffffff;
+            --text-muted: #bdc3c7;
+            --accent-color: #bdc3c7;
+            --accent-gradient: linear-gradient(90deg, #7f8c8d, #bdc3c7, #ffffff, #bdc3c7, #7f8c8d);
+            --btn-gradient: linear-gradient(45deg, #7f8c8d, #bdc3c7, #7f8c8d);
+            --input-bg: rgba(20, 20, 20, 0.8);
+            --input-border: #444;
+            --border-glow: rgba(189, 195, 199, 0.2);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            background-image: var(--bg-image);
+            background-attachment: fixed;
+            transition: all 0.3s ease;
+        }
+
+        /* Switcher Toggle */
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        #themeToggle {
+            background: var(--btn-gradient);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            border: 1px solid var(--border-glow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: var(--accent-gradient);
+        }
+
+        h1 {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            margin: 10px 0;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--border-glow);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: var(--btn-gradient);
+            color: white;
+            padding: 14px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        p {
+            margin-top: 25px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #message {
+            font-size: 14px;
+            margin-bottom: 15px;
+            min-height: 20px;
+            font-weight: 500;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="theme-switcher">
+        <button id="themeToggle">Ganti Tema</button>
+    </div>
+
     <div class="container">
-        <h1 id="message"></h1>
-        <form action="" id="registrationForm">
+        <h1>Registrasi Akun</h1>
+        <div id="message"></div>
+        <form id="registrationForm">
             <input type="text" id="username" placeholder="Username" required>
-            <br>
             <input type="password" id="password" placeholder="Password" required>
-            <br>
             <button type="submit">Daftar</button>
         </form>
         <p>Sudah punya akun? <a href="/login/">Login di sini</a></p>
     </div>
 
     <script>
-        console.log("Index.html in register is running....");
+        // Logika Pengatur Tema
+        const themeToggle = document.getElementById('themeToggle');
         
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = "Mode Terang (Emas)";
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeToggle.textContent = "Mode Gelap (Silver)";
+            }
+        };
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Logika Registrasi
         const form = document.getElementById('registrationForm');
         const messageDiv = document.getElementById('message');
 
@@ -32,27 +215,29 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            messageDiv.textContent = '';
-            messageDiv.style.color = 'red';
+            messageDiv.textContent = 'Memproses...';
+            messageDiv.style.color = 'var(--text-main)';
 
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password }),
-                })
+                });
 
                 const result = await response.json();
 
                 if (response.status === 201 && result.success) {
-                    messageDiv.style.color = 'green';
-                    messageDiv.innerHTML = 'Registrasi **berhasil!** Silakan <a href="/login/">login</a>.';
+                    messageDiv.style.color = '#27ae60';
+                    messageDiv.innerHTML = 'Registrasi berhasil! Silakan <a href="/login/">login</a>.';
                     form.reset();
                 } else {
+                    messageDiv.style.color = '#e74c3c';
                     messageDiv.textContent = result.message || 'Registrasi gagal';
                 }
             } catch (error) {
-                messageDiv.textContent = 'Terjadi kesalahan jaringan. silakan coba lagi.';
+                messageDiv.style.color = '#e74c3c';
+                messageDiv.textContent = 'Terjadi kesalahan jaringan.';
             }
         });
     </script>

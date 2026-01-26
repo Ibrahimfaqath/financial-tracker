@@ -16,3 +16,13 @@ export const transactions = pgTable('transactions', {
   status: varchar('status', { length: 10, enum: ['income', 'outcome'] }).notNull(),
   description: text('description'),
 });
+
+// Tambahkan di bawah transactions
+export const financialWisdom = pgTable('financial_wisdom', {
+  id: serial('id').primaryKey(),
+  type: varchar('type', { length: 20, enum: ['quran', 'hadis', 'quote'] }).notNull(),
+  text: text('text').notNull(),
+  source: varchar('source', { length: 100 }).notNull(), // "QS. Al-Baqarah: 261"
+  theme: varchar('theme', { length: 50 }), // 'infaq', 'zakat', 'hemat', 'riba'
+  createdAt: timestamp('created_at').defaultNow(),
+});

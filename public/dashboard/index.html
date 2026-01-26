@@ -4,181 +4,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard keuangan</title>
+    <title>Dashboard Keuangan Premium</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        :root {
+            --bg-color: #f8f8f8;
+            --bg-image: linear-gradient(125deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.8) 100%), url('https://www.transparenttextures.com/patterns/white-diamond.png');
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #2c3e50;
+            --accent-color: #B38728;
+            --accent-gradient: linear-gradient(45deg, #BF953F, #D4AF37, #B38728);
+            --border-color: rgba(212, 175, 55, 0.3);
+            --input-bg: #ffffff;
+            --input-text: #333;
+            --shadow: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f0f0f;
+            --bg-image: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(30, 30, 30, 0.9) 100%), url('https://www.transparenttextures.com/patterns/black-linen.png');
+            --card-bg: rgba(30, 30, 30, 0.7);
+            --text-main: #ffffff;
+            --accent-color: #bdc3c7;
+            --accent-gradient: linear-gradient(45deg, #7f8c8d, #bdc3c7, #7f8c8d);
+            --border-color: rgba(189, 195, 199, 0.3);
+            --input-bg: rgba(20, 20, 20, 0.8);
+            --input-text: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            margin: 0; font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color); background-image: var(--bg-image);
+            background-attachment: fixed; color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; padding-bottom: 50px;
+            transition: background 0.3s ease;
+        }
+
+        header { width: 100%; max-width: 900px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+
+        #themeToggle { background: var(--accent-gradient); border: none; color: white; padding: 8px 12px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        header a { color: var(--accent-color); text-decoration: none; font-weight: 600; border: 1px solid var(--accent-color); padding: 5px 15px; border-radius: 8px; }
+
+        main { width: 90%; max-width: 900px; }
+
+        section, #summary, #addTransactionForm, #transactionListContainer {
+            background: var(--card-bg); backdrop-filter: blur(8px); border-radius: 15px;
+            padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 20px var(--shadow); border: 1px solid var(--border-color);
+        }
+
+        #summary { display: flex; justify-content: space-around; text-align: center; border-top: 4px solid var(--accent-color); }
+        #income { color: #27ae60; font-weight: 600; }
+        #outcome { color: #e74c3c; font-weight: 600; }
+        #balance { font-size: 1.2rem; font-weight: 600; }
+
+        input, select { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--input-text); border-radius: 10px; box-sizing: border-box; }
+        button[type="submit"] { width: 100%; background: var(--accent-gradient); color: white; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+
+        .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .action-btns { display: flex; gap: 10px; }
+        .btn-edit { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .btn-delete { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+
+        #editModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; border: 2px solid var(--accent-color); backdrop-filter: blur(10px); }
+    </style>
 </head>
 
 <body>
+    <div id="editModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">Update Transaksi</h3>
+            <form id="editTransactionForm">
+                <input type="hidden" id="edit-id">
+                <label>Nominal</label>
+                <input type="number" id="edit-nominal" required>
+                <label>Tanggal</label>
+                <input type="date" id="edit-date" required>
+                <label>Status</label>
+                <select id="edit-status">
+                    <option value="income">Pemasukan</option>
+                    <option value="outcome">Pengeluaran</option>
+                </select>
+                <label>Keterangan</label>
+                <input type="text" id="edit-description">
+                <button type="submit">Simpan Perubahan</button>
+                <button type="button" onclick="closeEditModal()" style="background:none; color:var(--text-main); border:none; margin-top:10px; width:100%; cursor:pointer;">Batal</button>
+            </form>
+        </div>
+    </div>
+
     <header>
-        <h1>Halo, <span id="username">Pengguna</span>!</h1>
-        <a href="/logout/">Logout</a>
-        <hr>
+        <h1>Halo, <span id="username">...</span>!</h1>
+        <div class="header-controls">
+            <button id="themeToggle">Ganti Tema</button>
+            <a href="../logout/index.html">Logout</a>
+        </div>
     </header>
 
     <main>
-        <h2>Ringkasan Bulan Ini (<span id="currentMonthYear"></span>)</h2>
+        <section id="wisdomSection" style="text-align:center;">
+            <div style="color:var(--accent-color); font-weight:600; font-size: 0.8rem;">NASIHAT KEUANGAN</div>
+            <p id="wisdomText" style="font-style: italic;">"Memuat..."</p>
+        </section>
+
         <div id="summary">
-            <p>Pemasukan (Income): <strong id="income">...</strong></p>
-            <p>Pengeluaran (Outcome): <strong id="outcome">...</strong></p>
-            <h3>Sisa Saldo (Balance): <strong id="balance">...</strong></h3>
+            <div>Pemasukan<br><strong id="income">...</strong></div>
+            <div>Pengeluaran<br><strong id="outcome">...</strong></div>
+            <div>Sisa Saldo<br><strong id="balance">...</strong></div>
         </div>
 
-        <hr>
-
-        <h2>Input Transaksi Baru</h2>
-        <div id="addMessage"></div>
+        <h2>Tambah Transaksi Baru</h2>
         <form id="addTransactionForm">
-            <label for="nominal">Nominal:</label>
-            <input type="number" id="nominal" placeholder="Contoh: 500000" required>
-            <br>
-            <label for="date">Tanggal:</label>
+            <input type="number" id="nominal" placeholder="Nominal" required>
             <input type="date" id="date" required>
-            <br>
-            <label for="status">Status:</label>
-            <select id="status" required>
+            <select id="status">
                 <option value="income">Pemasukan</option>
                 <option value="outcome">Pengeluaran</option>
             </select>
-            <br>
-            <label for="description">Keterangan (Opsional):</label>
-            <input type="text" id="description" placeholder="Contoh: Gaji bulan lalu">
-            <br>
-            <button type="submit">Tambah Transaksi</button>
+            <input type="text" id="description" placeholder="Keterangan">
+            <button type="submit">Simpan Transaksi</button>
         </form>
 
-        <hr>
-
-        <h2>Riwayat Transaksi</h2>
-        <ul id="transactionList">
-            <li>Memuat data...</li>
-        </ul>
+        <h2>Riwayat Transaksi (<span id="currentMonthYear"></span>)</h2>
+        <div id="transactionListContainer">
+            <div id="transactionList"></div>
+        </div>
     </main>
 
     <script>
-        const usernameSpan = document.getElementById('username');
-        const incomeEl = document.getElementById('income');
-        const outcomeEl = document.getElementById('outcome');
-        const balanceEl = document.getElementById('balance');
-        const currentMonthYearEl = document.getElementById('currentMonthYear');
-        const addTransactionForm = document.getElementById('addTransactionForm');
-        const transactionList = document.getElementById('transactionList');
-        const addMessageDiv = document.getElementById('addMessage');
-
         const TODAY = new Date();
         const CURRENT_YEAR = TODAY.getFullYear();
         const CURRENT_MONTH = (TODAY.getMonth() + 1).toString().padStart(2, '0');
+        const formatRupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(n);
 
-        // Format nominal ke Rupiah
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 2
-            }).format(number);
+        // --- THEME ---
+        const themeToggle = document.getElementById('themeToggle');
+        const applyTheme = (theme) => {
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            else document.documentElement.removeAttribute('data-theme');
+            themeToggle.textContent = theme === 'dark' ? "Mode Terang (Emas)" : "Mode Gelap (Silver)";
         };
+        applyTheme(localStorage.getItem('theme') || 'light');
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
 
-        // 1. Periksa status login & dapatkan data pengguna
-        const checkAuth = async () => {
+        // --- FETCH DATA ---
+        const fetchTransactions = async () => {
+            document.getElementById('currentMonthYear').textContent = `${CURRENT_MONTH}/${CURRENT_YEAR}`;
             try {
-                const response = await fetch('/api/me');
-                if (!response.ok) {
-                    window.location.href = '/login/';
-                    return null;
-                }
-                const { success, data } = await response.json();
+                const res = await fetch(`/api/transactions?year=${CURRENT_YEAR}&month=${CURRENT_MONTH}`);
+                const { success, data, summary } = await res.json();
                 if (success) {
-                    usernameSpan.textContent = data.username;
-                    return data;
-                } else {
-                    window.location.href = '/login/';
-                    return null;
-                }
-            } catch (error) {
-                window.location.href = '/login/';
-                return null;
-            }
-        };
+                    document.getElementById('income').textContent = formatRupiah(summary.totalIncome);
+                    document.getElementById('outcome').textContent = formatRupiah(summary.totalOutcome);
+                    document.getElementById('balance').textContent = formatRupiah(summary.balance);
 
-        // 2 Fungsi untuk mengambil dan menampilkan transaksi & summmary
-        const fetchTransactions = async (year, month) => {
-            currentMonthYearEl.textContent = `${month}/${year}`;
-            transactionList.innerHTML = '<li>Memuat data...</li>';
+                    const list = document.getElementById('transactionList');
+                    list.innerHTML = data.length ? '' : '<p style="text-align:center;">Belum ada transaksi bulan ini.</p>';
 
-            try {
-                const response = await fetch(`/api/transactions?year=${year}&month=${month}`);
-                const { success, data, summary } = await response.json();
-
-                if (success) {
-                    // Update Summary
-                    incomeEl.textContent = formatRupiah(summary.totalIncome);
-                    outcomeEl.textContent = formatRupiah(summary.totalOutcome);
-                    balanceEl.textContent = formatRupiah(summary.balance);
-
-                    // Update List
-                    transactionList.innerHTML = '';
-                    if (data.length === 0) {
-                        transactionList.innerHTML = '<li>Belum ada transaksi di bulan ini.</li>';
-                    }
-                    data.forEach((t) => {
-                        const li = document.createElement('li');
-                        const nominalFormatted = formatRupiah(parseFloat(t.nominal));
-                        const color = t.status === 'income' ? 'green' : 'red';
-
-                        li.innerHTML = `**[${t.status.toUpperCase()}]** ${t.transactionDate}: <span style="color: ${color};">${nominalFormatted}</span> - ${t.description || '-'}`;
-                        transactionList.appendChild(li);
+                    data.forEach(t => {
+                        const cleanDate = t.transactionDate ? t.transactionDate.substring(0, 10) : '-';
+                        const color = t.status === 'income' ? '#27ae60' : '#e74c3c';
+                        const div = document.createElement('div');
+                        div.className = 'transaction-item';
+                        div.innerHTML = `
+                            <div>
+                                <strong>${t.description || 'Tanpa Keterangan'}</strong><br>
+                                <small>${cleanDate}</small> • <span style="color:${color}; font-weight:600">${formatRupiah(t.nominal)}</span>
+                            </div>
+                            <div class="action-btns">
+                                <button class="btn-edit" onclick='openEditModal(${JSON.stringify(t)})'>Edit</button>
+                                <button class="btn-delete" onclick="handleDelete(${t.id})">Hapus</button>
+                            </div>
+                        `;
+                        list.appendChild(div);
                     });
-                } else {
-                    transactionList.innerHTML = '<li> Gagal memuat transaksi.</li>';
                 }
-            } catch (error) {
-                console.error('Gagal mengambil transaksi:', error);
-                transactionList.innerHTML = '<li>Error jaringan saat memuat data.</li>';
-            }
+            } catch (e) { console.error(e); }
         };
 
-        // 3. Event listener untuk menambah transaksi baru
-        addTransactionForm.addEventListener('submit', async (e) => {
+        // --- CREATE ---
+        document.getElementById('addTransactionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            const nominal = document.getElementById('nominal').value;
-            const transactionDate = document.getElementById('date').value;
-            const status = document.getElementById('status').value;
-            const description = document.getElementById('description').value;
-
-            if (!nominal || !transactionDate || !status) return;
-
-            addMessageDiv.textContent = '';
-            addMessageDiv.style.color = 'red';
-
-            try {
-                const response = await fetch('/api/transactions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nominal: parseFloat(nominal), transactionDate, status, description })
-                });
-                const { success, message } = await response.json();
-
-                if (response.status === 201 && success) {
-                    addMessageDiv.style.color = 'green';
-                    addMessageDiv.textContent = '✅ Transaksi berhasil ditambahkan!';
-                    addTransactionForm.reset();
-                    fetchTransactions(CURRENT_YEAR, CURRENT_MONTH) // Muat ulang daftar
-                } else {
-                    addMessageDiv.textContent = message || 'Gagal menambah transaksi.';
-                }
-            } catch (error) {
-                console.error('Gagal menambah transaksi: ', error);
-                addMessageDiv.textContent = 'Error jaringan saat menambah transaksi.';
+            const body = {
+                nominal: parseInt(document.getElementById('nominal').value),
+                transactionDate: document.getElementById('date').value,
+                status: document.getElementById('status').value,
+                description: document.getElementById('description').value
+            };
+            const res = await fetch('/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) { 
+                e.target.reset(); 
+                document.getElementById('date').value = TODAY.toISOString().substring(0, 10);
+                fetchTransactions(); 
             }
         });
 
-        // Panggil fungsi utama saat halaman dimuat
-        (async () => {
-            const user = await checkAuth();
-            if (user) {
-                fetchTransactions(CURRENT_YEAR, CURRENT_MONTH);
+        // --- DELETE ---
+        async function handleDelete(id) {
+            if (!confirm('Hapus transaksi ini?')) return;
+            const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+            if (res.ok) fetchTransactions();
+        }
+
+        // --- UPDATE ---
+        function openEditModal(t) {
+            document.getElementById('edit-id').value = t.id;
+            document.getElementById('edit-nominal').value = t.nominal;
+            document.getElementById('edit-status').value = t.status;
+            document.getElementById('edit-description').value = t.description;
+            if (t.transactionDate) {
+                document.getElementById('edit-date').value = t.transactionDate.substring(0, 10);
             }
-        })();
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        document.getElementById('editTransactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const body = {
+                nominal: parseInt(document.getElementById('edit-nominal').value),
+                transactionDate: document.getElementById('edit-date').value,
+                status: document.getElementById('edit-status').value,
+                description: document.getElementById('edit-description').value
+            };
+            const res = await fetch(`/api/transactions/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) { closeEditModal(); fetchTransactions(); }
+        });
+
+        // --- INIT ---
+        async function init() {
+            // Set Default Date
+            document.getElementById('date').value = TODAY.toISOString().substring(0, 10);
+            
+            // Get Username
+            try {
+                const userRes = await fetch('/api/me');
+                const userJson = await userRes.json();
+                if (userJson.success) document.getElementById('username').textContent = userJson.data.username;
+            } catch(e) {}
+
+            // Get Wisdom
+            try {
+                const wisRes = await fetch('/api/wisdom');
+                const wisJson = await wisRes.json();
+                if (wisJson.success) document.getElementById('wisdomText').textContent = `"${wisJson.data.text}"`;
+            } catch(e) {}
+
+            fetchTransactions();
+        }
+        init();
     </script>
 </body>
-
 </html>

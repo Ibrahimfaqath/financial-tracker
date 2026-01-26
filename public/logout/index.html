@@ -1,27 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>logging Out...</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logging Out...</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f8f8f8;
+      --bg-image: linear-gradient(125deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.8) 100%),
+                  url('https://www.transparenttextures.com/patterns/white-diamond.png');
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #2c3e50;
+      --accent-gradient: linear-gradient(45deg, #BF953F, #D4AF37, #B38728);
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f0f0f;
+      --bg-image: linear-gradient(135deg, rgba(15,15,15,.95) 0%, rgba(30,30,30,.9) 100%),
+                  url('https://www.transparenttextures.com/patterns/black-linen.png');
+      --card-bg: rgba(30, 30, 30, 0.75);
+      --text-main: #ffffff;
+      --accent-gradient: linear-gradient(45deg, #7f8c8d, #bdc3c7, #7f8c8d);
+      --shadow: rgba(0, 0, 0, 0.5);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-color);
+      background-image: var(--bg-image);
+      background-attachment: fixed;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 40px 35px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 10px 25px var(--shadow);
+      max-width: 420px;
+      width: 90%;
+      backdrop-filter: blur(10px);
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 5px solid rgba(0,0,0,0.1);
+      border-top: 5px solid transparent;
+      background: var(--accent-gradient);
+      mask: radial-gradient(farthest-side, transparent 60%, black 61%);
+      -webkit-mask: radial-gradient(farthest-side, transparent 60%, black 61%);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 
 <body>
-    <h1>Anda sedang keluar...</h1>
-    <script>
-        (async () => {
-            try {
-                // Panggil API logout untuk menghapus cookie
-                await fetch('/api/logout', { method: 'POST' });
-            } catch (error) {
-                console.log('Logout failed:', error);
-            } finally {
-                // Selalu alihkan ke halaman login setelah mencoba logout
-                window.location.href = '/login/';
-            }
-        })();
-    </script>
-</body>
+  <div class="card">
+    <div class="loader"></div>
+    <h1>Keluar dari akun...</h1>
+    <p>Mohon tunggu sebentar</p>
+  </div>
 
+  <script>
+    // Apply theme from dashboard
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    (async () => {
+      try {
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+      } catch (err) {
+        console.log('Logout failed:', err);
+      } finally {
+        setTimeout(() => {
+          window.location.href = '/login/';
+        }, 800);
+      }
+    })();
+  </script>
+</body>
 </html>
