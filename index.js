@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
+import { readFileSync } from 'fs';
 import { db } from './db/index.js';
 import { users, transactions } from './db/schema.js';
 import { eq, desc, sql } from 'drizzle-orm';
@@ -32,13 +33,22 @@ app.get('/api/transactions', authMiddleware, seeTransaction);
 app.get('/api/wisdom', wisdom);
 
 // --- Static Files ---
-// Di Vercel, middleware ini seringkali dilewati karena vercel.json, 
-// tapi tetap ada untuk testing lokal.
 app.use('/*', serveStatic({ root: './public' }));
+
+// --- SPA Fallback ---
+// Serve index.html for any non-API route that doesn't match a static file
+app.get('*', (c) => {
+  try {
+    const html = readFileSync('./public/index.html', 'utf-8');
+    return c.html(html);
+  } catch {
+    return c.text('Not Found', 404);
+  }
+});
 
 // --- Server Start Logic ---
 if (process.env.NODE_ENV !== 'production') {
-  const port = 9999;
+  const port = 3000;
   console.log(`🚀 Server is running on http://localhost:${port}`);
   serve({ fetch: app.fetch, port });
 }

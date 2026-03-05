@@ -1,38 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading...</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack - Financial Tracker</title>
+  <meta name="description" content="A modern personal financial tracker with Islamic financial wisdom." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            surface: {
+              DEFAULT: '#ffffff',
+              dark: '#111113',
+            },
+            ground: {
+              DEFAULT: '#fafafa',
+              dark: '#09090b',
+            },
+            subtle: {
+              DEFAULT: '#f4f4f5',
+              dark: '#18181b',
+            },
+            border: {
+              DEFAULT: '#e4e4e7',
+              dark: '#27272a',
+            },
+            txt: {
+              primary: { DEFAULT: '#09090b', dark: '#fafafa' },
+              secondary: { DEFAULT: '#71717a', dark: '#a1a1aa' },
+            },
+            accent: {
+              DEFAULT: '#2563eb',
+              hover: '#1d4ed8',
+            },
+            income: {
+              DEFAULT: '#059669',
+              light: '#ecfdf5',
+              darkbg: '#064e3b',
+            },
+            expense: {
+              DEFAULT: '#e11d48',
+              light: '#fff1f2',
+              darkbg: '#4c0519',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="stylesheet" href="/css/styles.css" />
 </head>
+<body class="font-sans bg-ground dark:bg-ground-dark text-txt-primary dark:text-txt-primary-dark antialiased min-h-screen transition-colors duration-200">
+  <div id="app"></div>
+  <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2"></div>
+  <div id="modal-container"></div>
 
-<body>
-    <h1>Memeriksa status login...</h1>
-
-    <script>
-        (async () => {
-            try {
-                // Memeriksa token via API /api/me
-                const response = await fetch('/api/me');
-                if (response.ok) {
-                    const { success } = await response.json();
-                    if (success) {
-                        // Jika sukses (sudah login), arahkan ke dashboard
-                        window.location.href = '/dashboard';
-                    } else {
-                        // Jika gagal, arahkan ke login
-                        window.location.href = '/login/';
-                    }
-                } else {
-                    window.location.href = '/login/';
-                }
-            } catch (error) {
-                console.error('Error checking auth status: ', error);
-                window.location.href = '/login/';
-            }
-        })();
-    </script>
+  <script type="module" src="/js/app.js"></script>
 </body>
-
 </html>
